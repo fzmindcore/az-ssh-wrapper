@@ -59,6 +59,15 @@ def opt_filter(opt):
     return not (opt[0] == "-o" and opt[1].startswith("Control"))
 
 
+def fix_key_permissions(key_path):
+    """Ensure the private key file has the correct permissions."""
+    if os.name == "posix":  # Only enforce on POSIX systems
+        try:
+            os.chmod(key_path, 0o600)  # Set permissions to 600
+        except Exception as e:
+            print(f"Warning: Unable to set permissions for {key_path}: {e}")
+
+
 def main():
     options = "46AaCfGgKkMNnqsTtVvXxYyB:b:c:D:E:e:f:I:i:J:L:l:m:O:o:p:Q:R:S:W:w:"
     long_options = ["arc", "subscription=", "resource-group=", "local-user="]
@@ -90,6 +99,8 @@ def main():
             resource_group = a
         elif o == "--local-user":
             local_user = a
+        elif o == "-i":  # Private key file option
+            fix_key_permissions(a)
         else:
             filtered_opts.append((o, a))
 
